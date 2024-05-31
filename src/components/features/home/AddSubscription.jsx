@@ -12,38 +12,49 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import * as mutations from '@/graphql/mutations';
-import { generateClient } from 'aws-amplify/api';
+import * as mutations from "@/graphql/mutations";
+import { generateClient } from "aws-amplify/api";
 import { useAppContext } from "@/context/AppContext";
+import { Loader } from "lucide-react";
 
 const AddSubscription = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const {user}=useAppContext()
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const { user } = useAppContext();
 
-  const handleInsertSubscription=async ()=>{
+  const handleInsertSubscription = async () => {
     try {
-      const graphqlClient=generateClient()
-      const newSubscription=await graphqlClient.graphql({
-        query:mutations.createUserSubscription,
-        variables:{
-          title:title,
-          description:description,
-          checked:false,
-          email:user
-          
-        }
-      })
+      setIsLoading(true);
+      const graphqlClient = generateClient();
+      const newSubscription = await graphqlClient.graphql({
+        query: mutations.createUserSubscription,
+        variables: {
+          input: {
+            title: title,
+            description: description,
+            checked: false,
+            email: user,
+            userId: user.userId,
+            price: price,
+          },
+        },
+      });
+      setTitle('')
+      setDescription("")
+      setPrice("")
+      console.log("subscription successful", newSubscription);
     } catch (error) {
-      
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-  }
-
+  };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button>Add Subscription</Button>
       </DialogTrigger>
@@ -56,15 +67,41 @@ const AddSubscription = () => {
         </DialogHeader>
 
         <div className="w-full h-max flex flex-col gap-3">
-          <Label htmlfor="title">Title</Label>
-          <Input id="title" value={title} onChange={(e)=>{
-            setIsTitle(e.target.value)
-          }} className="w-full" />
-          <Label htmlfor="description">Description</Label>
-          <Input id="description" className="w-full" />
-          <Button className="w-full mt-10" value={description} onChange={(e)=>{
-            setDescription(e.target.value)
-          }} >Add Subscription </Button>
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+            className="w-full"
+          />
+          <Label htmlFor="description">Description</Label>
+          <Input
+            id="description"
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+            className="w-full"
+          />
+
+          <Label htmlFor="price">Price</Label>
+          <Input
+            id="price"
+            className="w-full"
+            value={price}
+            onChange={(e) => {
+              setPrice(e.target.value);
+            }}
+          />
+          <Button
+            className="w-full mt-10 flex flex-row items-center gap-5"
+            onClick={handleInsertSubscription}
+            disabled={isLoading}>
+            {isLoading && <Loader className="animate-spin" />}
+            <p>Add Subscription</p>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
