@@ -4,9 +4,12 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Link } from "react-router-dom";
 import { Aperture } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import {LogOutIcon,UserIcon} from 'lucide-react'
+import { useAppContext } from '@/context/AppContext';
 
 
 const Header = () => {
+  const {user}=useAppContext()
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white shadow dark:bg-gray-900">
     <Link to="#" className="flex items-center gap-2">
@@ -16,8 +19,8 @@ const Header = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="h-9 w-9 cursor-pointer">
-          <img src="/placeholder.svg" alt="@shadcn" />
-          <AvatarFallback>JP</AvatarFallback>
+          <AvatarImage src='' />
+          <AvatarFallback>{user.signInDetails.loginId[0]}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
