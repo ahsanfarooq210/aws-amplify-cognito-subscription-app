@@ -16,6 +16,7 @@ import * as mutations from "@/graphql/mutations";
 import { generateClient } from "aws-amplify/api";
 import { useAppContext } from "@/context/AppContext";
 import { Loader } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const AddSubscription = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,8 +25,19 @@ const AddSubscription = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const { user } = useAppContext();
+  const { toast } = useToast();
 
   const handleInsertSubscription = async () => {
+    if (!title || !price) {
+      toast({
+        title: "Empty Fields",
+        description: "Price and title cannot be empty",
+        variant: "destructive",
+
+      });
+      return
+    }
+
     try {
       setIsLoading(true);
       const graphqlClient = generateClient();
@@ -42,9 +54,16 @@ const AddSubscription = () => {
           },
         },
       });
-      setTitle('')
-      setDescription("")
-      setPrice("")
+      setTitle("");
+      setDescription("");
+      setPrice("");
+      toast({
+        title:"Success",
+        description:"Subscription added successfully",
+        variant: "success",
+
+
+      })
       console.log("subscription successful", newSubscription);
     } catch (error) {
       console.log(error);
