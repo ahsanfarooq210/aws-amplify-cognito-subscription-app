@@ -2,10 +2,6 @@ import { useAppContext } from "@/context/AppContext";
 import React from "react";
 
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -39,12 +35,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import AddSubscription from "./AddSubscription";
 
 const SubscriptionComponent = () => {
   const { user } = useAppContext();
 
   return <div className="w-screen h-max">
-    
+    <AddSubscription/>
   </div>;
 };
 

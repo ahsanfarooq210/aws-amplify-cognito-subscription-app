@@ -5,23 +5,12 @@ export const getUserSubscription = /* GraphQL */ `
   query GetUserSubscription($id: ID!) {
     getUserSubscription(id: $id) {
       id
+      userId
       title
       description
       checked
+      price
       email
-      profileID
-      profile {
-        id
-        email
-        profilePicture
-        fullName
-        phoneNumber
-        address
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -42,11 +31,12 @@ export const listUserSubscriptions = /* GraphQL */ `
     ) {
       items {
         id
+        userId
         title
         description
         checked
+        price
         email
-        profileID
         createdAt
         updatedAt
         owner
@@ -66,10 +56,6 @@ export const getProfile = /* GraphQL */ `
       fullName
       phoneNumber
       address
-      subscriptions {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -91,40 +77,6 @@ export const listProfiles = /* GraphQL */ `
         fullName
         phoneNumber
         address
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
-export const userSubscriptionsByProfileIDAndTitle = /* GraphQL */ `
-  query UserSubscriptionsByProfileIDAndTitle(
-    $profileID: ID!
-    $title: ModelStringKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelUserSubscriptionFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    userSubscriptionsByProfileIDAndTitle(
-      profileID: $profileID
-      title: $title
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        title
-        description
-        checked
-        email
-        profileID
         createdAt
         updatedAt
         owner

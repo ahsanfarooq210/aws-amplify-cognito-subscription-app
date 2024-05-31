@@ -8,23 +8,12 @@ export const onCreateUserSubscription = /* GraphQL */ `
   ) {
     onCreateUserSubscription(filter: $filter, owner: $owner) {
       id
+      userId
       title
       description
       checked
+      price
       email
-      profileID
-      profile {
-        id
-        email
-        profilePicture
-        fullName
-        phoneNumber
-        address
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -39,23 +28,12 @@ export const onUpdateUserSubscription = /* GraphQL */ `
   ) {
     onUpdateUserSubscription(filter: $filter, owner: $owner) {
       id
+      userId
       title
       description
       checked
+      price
       email
-      profileID
-      profile {
-        id
-        email
-        profilePicture
-        fullName
-        phoneNumber
-        address
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -70,23 +48,12 @@ export const onDeleteUserSubscription = /* GraphQL */ `
   ) {
     onDeleteUserSubscription(filter: $filter, owner: $owner) {
       id
+      userId
       title
       description
       checked
+      price
       email
-      profileID
-      profile {
-        id
-        email
-        profilePicture
-        fullName
-        phoneNumber
-        address
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -106,10 +73,6 @@ export const onCreateProfile = /* GraphQL */ `
       fullName
       phoneNumber
       address
-      subscriptions {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -129,10 +92,6 @@ export const onUpdateProfile = /* GraphQL */ `
       fullName
       phoneNumber
       address
-      subscriptions {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -152,10 +111,6 @@ export const onDeleteProfile = /* GraphQL */ `
       fullName
       phoneNumber
       address
-      subscriptions {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
