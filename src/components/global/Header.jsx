@@ -9,10 +9,11 @@ import { useAppContext } from '@/context/AppContext';
 
 
 const Header = () => {
-  const {user}=useAppContext()
+  const {user,signout}=useAppContext()
+
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white shadow dark:bg-gray-900">
-    <Link to="#" className="flex items-center gap-2">
+    <Link to="/" className="flex items-center gap-2">
       <Aperture className="h-6 w-6 text-gray-900 dark:text-gray-100" />
       <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Acme Inc</span>
     </Link>
@@ -20,11 +21,11 @@ const Header = () => {
       <DropdownMenuTrigger asChild>
         <Avatar className="h-9 w-9 cursor-pointer">
           <AvatarImage src='' />
-          <AvatarFallback>{user.signInDetails.loginId[0]}</AvatarFallback>
+          <AvatarFallback>{user?.signInDetails?.loginId[0]||"U"}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={signout} >
           <LogOutIcon className="mr-2 h-4 w-4" />
           Sign out
         </DropdownMenuItem>
