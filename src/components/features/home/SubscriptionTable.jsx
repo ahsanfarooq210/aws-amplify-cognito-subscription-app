@@ -42,7 +42,9 @@ export default function SubscriptionTable() {
   const { toast } = useToast();
 
   const table = useReactTable({
-    data: subscriptionData ? subscriptionData?.listUserSubscriptions?.items : [],
+    data: subscriptionData
+      ? subscriptionData?.listUserSubscriptions?.items
+      : [],
     columns: subscriptionTabelColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -116,8 +118,7 @@ export default function SubscriptionTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) =>
                       column.toggleVisibility(!!value)
-                    }
-                  >
+                    }>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 );
@@ -147,27 +148,31 @@ export default function SubscriptionTable() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                console.log('row data',row.original)
+                const rowData=row.original
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                        className={`${rowData.checked?"bg-green-500/30":"bg-red-500/30"}`}
+                    >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={subscriptionTabelColumns.length}
-                  className="h-24 text-center"
-                >
+                  className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -189,22 +194,21 @@ export default function SubscriptionTable() {
               setTokenStack(tokenStack);
               getSubscriptionData(previousToken);
             }}
-            disabled={tokenStack.length === 0}
-          >
+            disabled={tokenStack.length === 0}>
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              const nextToken = subscriptionData.listUserSubscriptions.nextToken;
+              const nextToken =
+                subscriptionData.listUserSubscriptions.nextToken;
               if (nextToken) {
                 setTokenStack([...tokenStack, currentToken]);
                 getSubscriptionData(nextToken);
               }
             }}
-            disabled={!subscriptionData?.listUserSubscriptions?.nextToken}
-          >
+            disabled={!subscriptionData?.listUserSubscriptions?.nextToken}>
             Next
           </Button>
         </div>
