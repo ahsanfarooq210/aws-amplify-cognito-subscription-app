@@ -74,7 +74,20 @@ export default function SubscriptionTable() {
           nextToken: nextToken,
         },
       });
-      setSubscriptionData(subscriptionData.data);
+      // Sort the items based on the `checked` field
+      const sortedItems =
+        subscriptionData.data.listUserSubscriptions.items.sort((a, b) => {
+          return a.checked === b.checked ? 0 : a.checked ? -1 : 1;
+        });
+
+      // Set the sorted data
+      setSubscriptionData({
+        ...subscriptionData.data,
+        listUserSubscriptions: {
+          ...subscriptionData.data.listUserSubscriptions,
+          items: sortedItems,
+        },
+      });
       setCurrentToken(nextToken);
       console.log("successfully grabbed subscription data", subscriptionData);
     } catch (error) {
