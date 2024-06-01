@@ -1,52 +1,108 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useAppContext } from "@/context/AppContext";
+import { ArrowUpDown, ChevronDown, Loader, MoreHorizontal } from "lucide-react";
+import { generateClient } from "aws-amplify/api";
+import * as mutations from "@/graphql/mutations";
+import { useState } from "react";
 
 export const subscriptionTabelColumns = [
-    {
-      accessorKey: "title",
-      header: "Title",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("title")}</div>
-      ),
+  {
+    accessorKey: "title",
+    header: "Title",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("title")}</div>
+    ),
+  },
+  {
+    accessorKey: "description",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          Description
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
     },
-    {
-      accessorKey: "description",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Description
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <p className="lowercase">{row.getValue("description")}</p>
-      ),
+    cell: ({ row }) => (
+      <p className="lowercase">{row.getValue("description")}</p>
+    ),
+  },
+  {
+    accessorKey: "price",
+    header: () => <div className="text-right">Price</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("price"));
+
+      // Format the amount as a dollar amount
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(amount);
+
+      return <div className="text-right font-medium">{formatted}</div>;
     },
-    {
-      accessorKey: "price",
-      header: () => <div className="text-right">Price</div>,
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("price"));
-  
-        // Format the amount as a dollar amount
-        const formatted = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(amount);
-  
-        return <div className="text-right font-medium">{formatted}</div>;
-      },
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const rowData = row.original;
+      const [isLoading, setIsLoading] = useState(false);
+      const { toast } = useToast();
+      const { onTableDataUpdate } = useAppContext();
+      const client = generateClient();
+      const handleUpdateStatus = async (checked) => {
+        try {
+          setIsLoading(true);
+          const updateData = await client.graphql({
+            query: mutations.updateUserSubscription,
+            variables: {
+              input: {
+                id: rowData.id,
+                checked: checked,
+              },
+            },
+          });
+          onTableDataUpdate();
+          toast({
+            title: "Success",
+            description: "Status changed successfully",
+            variant: "success",
+          });
+        } catch (error) {
+          console.log("error in updating the status", error);
+          toast({
+            title: "failure",
+            description: "Something went wrong",
+            variant: "desctructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <>
+          {rowData.checked ? (
+            <Button
+              variant="destructive"
+              className="flex flex-row items-center gap-4"
+              onClick={() => handleUpdateStatus(false)}>
+              <p>Mark as uncheck</p>
+            </Button>
+          ) : (
+            <Button
+              onClick={() => handleUpdateStatus(true)}
+              className="flex flex-row items-center gap-4">
+              {isLoading && <Loader className="animate-spin" />}
+              <p>Mark as Checked</p>
+            </Button>
+          )}
+        </>
+      );
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const payment = row.original;
-  
-        return <Button>Mark as Checked</Button>;
-      },
-    },
-  ];
+  },
+];

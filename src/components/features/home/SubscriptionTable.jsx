@@ -30,6 +30,7 @@ import { useToast } from "@/components/ui/use-toast";
 import * as queries from "@/graphql/queries";
 import { generateClient } from "aws-amplify/api";
 import { subscriptionTabelColumns } from "./constants";
+import { useAppContext } from "@/context/AppContext";
 
 export default function SubscriptionTable() {
   const [sorting, setSorting] = useState([]);
@@ -40,6 +41,7 @@ export default function SubscriptionTable() {
   const [tokenStack, setTokenStack] = useState([]);
   const [currentToken, setCurrentToken] = useState(null);
   const { toast } = useToast();
+  const {}=useAppContext();
 
   const table = useReactTable({
     data: subscriptionData

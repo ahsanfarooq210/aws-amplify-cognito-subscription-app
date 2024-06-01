@@ -1,4 +1,4 @@
-import { createContext, useContext,useState } from "react";
+import { createContext, useContext, useState } from "react";
 import React from "react";
 
 const AppContext = createContext(undefined);
@@ -8,10 +8,14 @@ export const AppContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [signout, setSignout] = useState(() => () => {
     console.log("Default function");
-  })
+  });
+
+  const [onTableDataUpdate, setOnTableDataUpdate] = useState(() => () => {});
+
+
 
   return (
-    <AppContext.Provider value={{ user, setUser, signout, setSignout }}>
+    <AppContext.Provider value={{ user, setUser, signout, setSignout,onTableDataUpdate,setOnTableDataUpdate }}>
       {children}
     </AppContext.Provider>
   );
