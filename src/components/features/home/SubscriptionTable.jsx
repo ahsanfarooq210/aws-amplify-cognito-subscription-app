@@ -36,10 +36,8 @@ export default function SubscriptionTable({ user }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [subscriptionData, setSubscriptionData] = useState(null);
-  const [tokenStack, setTokenStack] = useState([]);
-  const [currentToken, setCurrentToken] = useState(null);
   const { toast } = useToast();
-  const { setOnTableDataUpdate, setOnTableDataAdded } = useAppContext();
+  const { setOnTableDataUpdate, setOnTableDataAdded ,user:fetchedUser } = useAppContext();
 
   const table = useReactTable({
     data: subscriptionData
@@ -60,7 +58,7 @@ export default function SubscriptionTable({ user }) {
 
   const getSubscriptionData = useCallback(
     async (nextToken = undefined) => {
-      if (!user) {
+      if (!fetchedUser) {
         return;
       }
       try {
@@ -73,7 +71,7 @@ export default function SubscriptionTable({ user }) {
           variables: {
             filter: {
               email: {
-                eq: user.signInDetails.loginId,
+                eq: fetchedUser.signInDetails.loginId,
               },
             },
           },
@@ -92,7 +90,6 @@ export default function SubscriptionTable({ user }) {
             items: sortedItems,
           },
         });
-        setCurrentToken(nextToken);
         console.log("successfully grabbed subscription data", subscriptionData);
       } catch (error) {
         console.log("error while fetching user subscriptions", error);
@@ -103,28 +100,26 @@ export default function SubscriptionTable({ user }) {
         });
       }
     },
-    [user]
+    [fetchedUser]
   );
 
   const onTableUpdate = useCallback(() => {
-    getSubscriptionData(currentToken);
+    getSubscriptionData();
   }, []);
 
   setOnTableDataUpdate(() => onTableUpdate);
 
   const onTableDataAdded = useCallback(() => {
-    setTokenStack([]);
-    setCurrentToken(null);
     getSubscriptionData();
   }, []);
 
   setOnTableDataAdded(() => onTableDataAdded);
 
   useEffect(() => {
-    if (user) {
+    if (fetchedUser) {
       getSubscriptionData();
     }
-  }, [user]);
+  }, [fetchedUser]);
 
   return (
     <div className="w-full max-w-screen-xl mx-auto">
@@ -218,35 +213,7 @@ export default function SubscriptionTable({ user }) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const previousToken = tokenStack.pop();
-              setTokenStack(tokenStack);
-              getSubscriptionData(previousToken);
-            }}
-            disabled={tokenStack.length === 0}>
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const nextToken =
-                subscriptionData.listUserSubscriptions.nextToken;
-              if (nextToken) {
-                setTokenStack([...tokenStack, currentToken]);
-                getSubscriptionData(nextToken);
-              }
-            }}
-            disabled={!subscriptionData?.listUserSubscriptions?.nextToken}>
-            Next
-          </Button>
-        </div>
-      </div>
+
     </div>
   );
 }
