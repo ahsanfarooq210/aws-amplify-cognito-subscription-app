@@ -8,7 +8,6 @@ const AppRouter = ({ user, signOut }) => {
   const { setUser, setSignout } = useAppContext();
 
   useEffect(() => {
-    console.log("user in app", user);
     setUser(user);
     setSignout(() => signOut);
   }, []);

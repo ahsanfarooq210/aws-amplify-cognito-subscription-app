@@ -64,7 +64,6 @@ export default function SubscriptionTable({ user }) {
       try {
         const client = generateClient();
 
-        console.log("user in subscription table", user);
 
         const subscriptionData = await client.graphql({
           query: queries.listUserSubscriptions,
@@ -90,7 +89,6 @@ export default function SubscriptionTable({ user }) {
             items: sortedItems,
           },
         });
-        console.log("successfully grabbed subscription data", subscriptionData);
       } catch (error) {
         console.log("error while fetching user subscriptions", error);
         toast({
@@ -181,7 +179,6 @@ export default function SubscriptionTable({ user }) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                console.log("row data", row.original);
                 const rowData = row.original;
                 return (
                   <TableRow

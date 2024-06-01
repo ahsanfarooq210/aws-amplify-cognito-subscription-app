@@ -7,10 +7,8 @@ export const AppContextProvider = ({ children }) => {
   // State to hold the user information
   const [user, setUser] = useState(null);
   const [signout, setSignout] = useState(() => () => {
-    console.log("Default function");
   });
 
-  console.log("app context user",user);
 
   const [onTableDataUpdate, setOnTableDataUpdate] = useState(() => () => {});
 

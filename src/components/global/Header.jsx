@@ -23,7 +23,6 @@ import {
 const Header = () => {
   const { user, signout } = useAppContext();
   const [userDetails, setUserDetails] = useState();
-  console.log("user data in header", user);
 
   const getUserDetails = async () => {
     try {
@@ -31,7 +30,7 @@ const Header = () => {
       setUserDetails(userDetails);
     } catch (error) {
       console.log(
-        "user details in header error while fetching user details",
+        "error while fetching user details",
         error
       );
     }

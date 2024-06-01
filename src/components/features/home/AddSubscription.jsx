@@ -65,7 +65,6 @@ const AddSubscription = () => {
 
 
       })
-      console.log("subscription successful", newSubscription);
     } catch (error) {
       console.log(error);
     } finally {
