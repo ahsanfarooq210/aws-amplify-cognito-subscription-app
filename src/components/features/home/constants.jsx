@@ -91,6 +91,7 @@ export const subscriptionTabelColumns = [
               variant="destructive"
               className="flex flex-row items-center gap-4"
               onClick={() => handleUpdateStatus(false)}>
+              {isLoading && <Loader className="animate-spin" />}
               <p>Mark as uncheck</p>
             </Button>
           ) : (
