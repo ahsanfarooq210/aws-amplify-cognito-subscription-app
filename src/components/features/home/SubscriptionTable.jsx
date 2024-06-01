@@ -57,7 +57,7 @@ export default function SubscriptionTable({ user }) {
   });
 
   const getSubscriptionData = useCallback(
-    async (nextToken = undefined) => {
+    async () => {
       if (!fetchedUser) {
         return;
       }
