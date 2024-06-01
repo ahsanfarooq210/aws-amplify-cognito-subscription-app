@@ -22,7 +22,7 @@ const data = [
 const SubscriptionComponent = () => {
   const { user } = useAppContext();
 
-  return <div className="w-screen h-max py-5 flex flex-col gap-4">
+  return <div className="w-full max-w-screen-xl mx-auto h-max py-5 flex flex-col gap-4">
     <AddSubscription/>
     <SubscriptionTable data={data} />
   </div>;
