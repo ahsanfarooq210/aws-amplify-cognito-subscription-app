@@ -1,47 +1,30 @@
 import { useAppContext } from "@/context/AppContext";
 import React from "react";
-
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import { Input } from "@/components/ui/input";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import AddSubscription from "./AddSubscription";
+import SubscriptionTable from "./SubscriptionTable";
+
+const data = [
+  {
+    title: 'Product 1',
+    description: 'Description for Product 1',
+    price: '$10',
+    action: 'Action 1'
+  },
+  {
+    title: 'Product 2',
+    description: 'Description for Product 2',
+    price: '$20',
+    action: 'Action 2'
+  },
+  // Add more data as needed
+];
 
 const SubscriptionComponent = () => {
   const { user } = useAppContext();
 
-  return <div className="w-screen h-max">
+  return <div className="w-screen h-max py-5 flex flex-col gap-4">
     <AddSubscription/>
+    <SubscriptionTable data={data} />
   </div>;
 };
 
