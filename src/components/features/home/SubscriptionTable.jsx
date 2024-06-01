@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -41,7 +41,7 @@ export default function SubscriptionTable() {
   const [tokenStack, setTokenStack] = useState([]);
   const [currentToken, setCurrentToken] = useState(null);
   const { toast } = useToast();
-  const {}=useAppContext();
+  const { setOnTableDataUpdate, setOnTableDataAdded } = useAppContext();
 
   const table = useReactTable({
     data: subscriptionData
@@ -86,6 +86,20 @@ export default function SubscriptionTable() {
       });
     }
   };
+
+  const onTableUpdate = useCallback(() => {
+    getSubscriptionData(currentToken);
+  }, []);
+
+  setOnTableDataUpdate(() => onTableUpdate);
+
+  const onTableDataAdded = useCallback(() => {
+    setTokenStack([]);
+    setCurrentToken(null);
+    getSubscriptionData();
+  }, []);
+
+  setOnTableDataAdded(() => onTableDataAdded);
 
   useEffect(() => {
     getSubscriptionData();
@@ -151,14 +165,15 @@ export default function SubscriptionTable() {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                console.log('row data',row.original)
-                const rowData=row.original
+                console.log("row data", row.original);
+                const rowData = row.original;
                 return (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                        className={`${rowData.checked?"bg-green-500/30":"bg-red-500/30"}`}
-                    >
+                    className={`${
+                      rowData.checked ? "bg-green-500/30" : "bg-red-500/30"
+                    }`}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(

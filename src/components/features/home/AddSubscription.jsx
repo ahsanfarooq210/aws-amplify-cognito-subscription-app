@@ -24,7 +24,7 @@ const AddSubscription = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const { user } = useAppContext();
+  const { user,onTableDataAdded } = useAppContext();
   const { toast } = useToast();
 
   const handleInsertSubscription = async () => {
@@ -57,6 +57,7 @@ const AddSubscription = () => {
       setTitle("");
       setDescription("");
       setPrice("");
+      onTableDataAdded()
       toast({
         title:"Success",
         description:"Subscription added successfully",

@@ -12,10 +12,20 @@ export const AppContextProvider = ({ children }) => {
 
   const [onTableDataUpdate, setOnTableDataUpdate] = useState(() => () => {});
 
-
+  const [onTableDataAdded, setOnTableDataAdded] = useState(() => () => {});
 
   return (
-    <AppContext.Provider value={{ user, setUser, signout, setSignout,onTableDataUpdate,setOnTableDataUpdate }}>
+    <AppContext.Provider
+      value={{
+        user,
+        setUser,
+        signout,
+        setSignout,
+        onTableDataUpdate,
+        setOnTableDataUpdate,
+        onTableDataAdded,
+        setOnTableDataAdded
+      }}>
       {children}
     </AppContext.Provider>
   );
