@@ -1,29 +1,37 @@
 import "./App.css";
 import AppRouter from "./routes/AppRouter";
 import { Amplify } from "aws-amplify";
-import { withAuthenticator } from "@aws-amplify/ui-react";
+import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import { useAppContext } from "./context/AppContext";
-import { useEffect } from "react";
 import config from "./amplifyconfiguration.json";
 
 Amplify.configure(config);
 
-function App({ signOut, user }) {
-  console.log("user data", user);
-  const { setUser, setSignout } = useAppContext();
+function App() {
 
-  useEffect(() => {
-    console.log("user in app", user);
-    setUser(user);
-    setSignout(() => signOut);
-  }, []);
 
   return (
-    <div className="w-screen h-screen overflow-auto">
-      <AppRouter />
-    </div>
+    <Authenticator
+      className="w-screen h-screen"
+      signUpAttributes={[
+        "address",
+
+        "email",
+
+        "name",
+        "birthdate",
+        "phone_number",
+        "picture",
+      ]}>
+      {({ signOut, user }) => {
+        return (
+          <div className="w-screen h-screen overflow-auto">
+            <AppRouter user={user} signOut={signOut} />
+          </div>
+        );
+      }}
+    </Authenticator>
   );
 }
 
-export default withAuthenticator(App);
+export default App;
