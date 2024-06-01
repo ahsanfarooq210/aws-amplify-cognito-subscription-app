@@ -32,7 +32,7 @@ import { generateClient } from "aws-amplify/api";
 import { subscriptionTabelColumns } from "./constants";
 import { useAppContext } from "@/context/AppContext";
 
-export default function SubscriptionTable() {
+export default function SubscriptionTable({ user }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
@@ -64,41 +64,53 @@ export default function SubscriptionTable() {
     },
   });
 
-  const getSubscriptionData = async (nextToken = null) => {
-    try {
-      const client = generateClient();
-      const subscriptionData = await client.graphql({
-        query: queries.listUserSubscriptions,
-        variables: {
-          limit: 5,
-          nextToken: nextToken,
-        },
-      });
-      // Sort the items based on the `checked` field
-      const sortedItems =
-        subscriptionData.data.listUserSubscriptions.items.sort((a, b) => {
-          return a.checked === b.checked ? 0 : a.checked ? -1 : 1;
-        });
+  const getSubscriptionData = useCallback(
+    async (nextToken = undefined) => {
+      if (!user) {
+        return;
+      }
+      try {
+        const client = generateClient();
 
-      // Set the sorted data
-      setSubscriptionData({
-        ...subscriptionData.data,
-        listUserSubscriptions: {
-          ...subscriptionData.data.listUserSubscriptions,
-          items: sortedItems,
-        },
-      });
-      setCurrentToken(nextToken);
-      console.log("successfully grabbed subscription data", subscriptionData);
-    } catch (error) {
-      console.log("error while fetching user subscriptions", error);
-      toast({
-        title: "Failure",
-        description: "Something went wrong while fetching the subscription",
-        variant: "destructive",
-      });
-    }
-  };
+        console.log("user in subscription table", user);
+
+        const subscriptionData = await client.graphql({
+          query: queries.listUserSubscriptions,
+          variables: {
+            filter: {
+              email: {
+                eq: user.signInDetails.loginId,
+              },
+            },
+          },
+        });
+        // Sort the items based on the `checked` field
+        const sortedItems =
+          subscriptionData.data.listUserSubscriptions.items.sort((a, b) => {
+            return a.checked === b.checked ? 0 : a.checked ? -1 : 1;
+          });
+
+        // Set the sorted data
+        setSubscriptionData({
+          ...subscriptionData.data,
+          listUserSubscriptions: {
+            ...subscriptionData.data.listUserSubscriptions,
+            items: sortedItems,
+          },
+        });
+        setCurrentToken(nextToken);
+        console.log("successfully grabbed subscription data", subscriptionData);
+      } catch (error) {
+        console.log("error while fetching user subscriptions", error);
+        toast({
+          title: "Failure",
+          description: "Something went wrong while fetching the subscription",
+          variant: "destructive",
+        });
+      }
+    },
+    [user]
+  );
 
   const onTableUpdate = useCallback(() => {
     getSubscriptionData(currentToken);
@@ -115,8 +127,10 @@ export default function SubscriptionTable() {
   setOnTableDataAdded(() => onTableDataAdded);
 
   useEffect(() => {
-    getSubscriptionData();
-  }, []);
+    if (user) {
+      getSubscriptionData();
+    }
+  }, [user]);
 
   return (
     <div className="w-full max-w-screen-xl mx-auto">
@@ -211,10 +225,6 @@ export default function SubscriptionTable() {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
         <div className="space-x-2">
           <Button
             variant="outline"

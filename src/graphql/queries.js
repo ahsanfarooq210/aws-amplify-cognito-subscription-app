@@ -47,6 +47,9 @@ export const listUserSubscriptions = /* GraphQL */ `
     }
   }
 `;
+
+
+
 export const getProfile = /* GraphQL */ `
   query GetProfile($id: ID!) {
     getProfile(id: $id) {
@@ -77,6 +80,37 @@ export const listProfiles = /* GraphQL */ `
         fullName
         phoneNumber
         address
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+
+
+export const getUserSubscriptionsByUserId = /* GraphQL */ `
+  query GetUserSubscriptionsByUserId(
+    $userId: String!
+    $limit: Int
+    $nextToken: String
+  ) {
+    listUserSubscriptions(
+      filter: { userId: { eq: $userId } }
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        userId
+        title
+        description
+        checked
+        price
+        email
         createdAt
         updatedAt
         owner

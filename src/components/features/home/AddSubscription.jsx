@@ -48,7 +48,7 @@ const AddSubscription = () => {
             title: title,
             description: description,
             checked: false,
-            email: user,
+            email: user.signInDetails.loginId,
             userId: user.userId,
             price: price,
           },

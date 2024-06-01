@@ -10,6 +10,8 @@ export const AppContextProvider = ({ children }) => {
     console.log("Default function");
   });
 
+  console.log("app context user",user);
+
   const [onTableDataUpdate, setOnTableDataUpdate] = useState(() => () => {});
 
   const [onTableDataAdded, setOnTableDataAdded] = useState(() => () => {});

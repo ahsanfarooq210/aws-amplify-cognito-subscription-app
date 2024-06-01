@@ -22,16 +22,7 @@ export const subscriptionTabelColumns = [
   },
   {
     accessorKey: "description",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Description
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Description",
     cell: ({ row }) => (
       <p className="lowercase">{row.getValue("description")}</p>
     ),
@@ -94,6 +85,7 @@ export const subscriptionTabelColumns = [
         <>
           {rowData.checked ? (
             <Button
+              key={rowData.id}
               variant="destructive"
               className="flex flex-row items-center gap-4"
               onClick={() => handleUpdateStatus(false)}>
@@ -102,6 +94,7 @@ export const subscriptionTabelColumns = [
             </Button>
           ) : (
             <Button
+              key={rowData.id}
               onClick={() => handleUpdateStatus(true)}
               className="flex flex-row items-center gap-4">
               {isLoading && <Loader className="animate-spin" />}
@@ -152,6 +145,7 @@ export const subscriptionTabelColumns = [
 
       return (
         <Button
+          key={rowData.id}
           onClick={handleDeleteItem}
           className="flex flex-row items-center gap-4"
           variant="desctructive">
