@@ -33,8 +33,6 @@ import { subscriptionTabelColumns } from "./constants";
 import { useAppContext } from "@/context/AppContext";
 
 export default function SubscriptionTable({ user }) {
-  const [sorting, setSorting] = useState([]);
-  const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [subscriptionData, setSubscriptionData] = useState(null);
@@ -48,8 +46,6 @@ export default function SubscriptionTable({ user }) {
       ? subscriptionData?.listUserSubscriptions?.items
       : [],
     columns: subscriptionTabelColumns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -57,8 +53,6 @@ export default function SubscriptionTable({ user }) {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
-      columnFilters,
       columnVisibility,
       rowSelection,
     },
