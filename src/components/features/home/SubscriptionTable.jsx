@@ -7,17 +7,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -35,18 +31,19 @@ import * as queries from "@/graphql/queries";
 import { generateClient } from "aws-amplify/api";
 import { subscriptionTabelColumns } from "./constants";
 
-
 export default function SubscriptionTable() {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [subscriptionData, setSubscriptionData] = useState(null);
+  const [tokenStack, setTokenStack] = useState([]);
+  const [currentToken, setCurrentToken] = useState(null);
   const { toast } = useToast();
 
   const table = useReactTable({
-    data: subscriptionData?subscriptionData?.listUserSubscriptions?.items:[],
-    columns:subscriptionTabelColumns,
+    data: subscriptionData ? subscriptionData?.listUserSubscriptions?.items : [],
+    columns: subscriptionTabelColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -63,7 +60,7 @@ export default function SubscriptionTable() {
     },
   });
 
-  const getSubscriptionData = async (nextToken) => {
+  const getSubscriptionData = async (nextToken = null) => {
     try {
       const client = generateClient();
       const subscriptionData = await client.graphql({
@@ -74,7 +71,8 @@ export default function SubscriptionTable() {
         },
       });
       setSubscriptionData(subscriptionData.data);
-      console.log("successfully grabed subsctiption data", subscriptionData);
+      setCurrentToken(nextToken);
+      console.log("successfully grabbed subscription data", subscriptionData);
     } catch (error) {
       console.log("error while fetching user subscriptions", error);
       toast({
@@ -118,7 +116,8 @@ export default function SubscriptionTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) =>
                       column.toggleVisibility(!!value)
-                    }>
+                    }
+                  >
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 );
@@ -151,7 +150,8 @@ export default function SubscriptionTable() {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}>
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -166,7 +166,8 @@ export default function SubscriptionTable() {
               <TableRow>
                 <TableCell
                   colSpan={subscriptionTabelColumns.length}
-                  className="h-24 text-center">
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -183,15 +184,27 @@ export default function SubscriptionTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}>
+            onClick={() => {
+              const previousToken = tokenStack.pop();
+              setTokenStack(tokenStack);
+              getSubscriptionData(previousToken);
+            }}
+            disabled={tokenStack.length === 0}
+          >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}>
+            onClick={() => {
+              const nextToken = subscriptionData.listUserSubscriptions.nextToken;
+              if (nextToken) {
+                setTokenStack([...tokenStack, currentToken]);
+                getSubscriptionData(nextToken);
+              }
+            }}
+            disabled={!subscriptionData?.listUserSubscriptions?.nextToken}
+          >
             Next
           </Button>
         </div>
