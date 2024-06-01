@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppContext } from "@/context/AppContext";
-import { ArrowUpDown, ChevronDown, Loader, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  Delete,
+  Loader,
+  MoreHorizontal,
+} from "lucide-react";
 import { generateClient } from "aws-amplify/api";
 import * as mutations from "@/graphql/mutations";
 import { useState } from "react";
@@ -103,6 +109,55 @@ export const subscriptionTabelColumns = [
             </Button>
           )}
         </>
+      );
+    },
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const rowData = row.original;
+      const [isLoading, setIsLoading] = useState(false);
+      const { toast } = useToast();
+      const { onTableDataUpdate, onTableDataAdded } = useAppContext();
+      const client = generateClient();
+      const handleDeleteItem = async () => {
+        try {
+          setIsLoading(true);
+          const deleteData = await client.graphql({
+            query: mutations.deleteUserSubscription,
+            variables: {
+              input: {
+                id: rowData.id,
+              },
+            },
+          });
+          onTableDataAdded();
+          toast({
+            title: "Success",
+            description: "Subscription deleted successfully",
+            variant: "success",
+          });
+        } catch (error) {
+          console.log("error in updating the status", error);
+          toast({
+            title: "failure",
+            description: "Something went wrong",
+            variant: "desctructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <Button
+          onClick={handleDeleteItem}
+          className="flex flex-row items-center gap-4"
+          variant="desctructive">
+          {isLoading && <Loader className="animate-spin " />}
+          <Delete className="text-red-500" />
+        </Button>
       );
     },
   },
