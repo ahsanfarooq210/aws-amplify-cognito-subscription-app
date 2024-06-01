@@ -24,6 +24,10 @@ const Header = () => {
   const { user, signout } = useAppContext();
   const [userDetails, setUserDetails] = useState();
 
+/**
+ * The function `getUserDetails` fetches user attributes asynchronously and sets the user details
+ * accordingly, handling errors if they occur.
+ */
   const getUserDetails = async () => {
     try {
       const userDetails = await fetchUserAttributes();
@@ -39,6 +43,8 @@ const Header = () => {
   useEffect(() => {
     getUserDetails();
   }, []);
+
+  
   return (
     <header className=" px-4 py-3 bg-white shadow dark:bg-gray-900">
       <div className="w-full max-w-screen-xl mx-auto flex items-center justify-between">

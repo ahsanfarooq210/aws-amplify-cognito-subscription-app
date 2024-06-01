@@ -12,6 +12,8 @@ import { generateClient } from "aws-amplify/api";
 import * as mutations from "@/graphql/mutations";
 import { useState } from "react";
 
+
+//column definitions for subscription table
 export const subscriptionTabelColumns = [
   {
     accessorKey: "title",

@@ -6,6 +6,7 @@ const AppContext = createContext(undefined);
 export const AppContextProvider = ({ children }) => {
   // State to hold the user information
   const [user, setUser] = useState(null);
+  //for holding the signout function
   const [signout, setSignout] = useState(() => () => {
   });
 

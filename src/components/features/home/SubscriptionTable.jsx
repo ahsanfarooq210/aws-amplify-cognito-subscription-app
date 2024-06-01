@@ -37,7 +37,11 @@ export default function SubscriptionTable({ user }) {
   const [rowSelection, setRowSelection] = useState({});
   const [subscriptionData, setSubscriptionData] = useState(null);
   const { toast } = useToast();
-  const { setOnTableDataUpdate, setOnTableDataAdded ,user:fetchedUser } = useAppContext();
+  const {
+    setOnTableDataUpdate,
+    setOnTableDataAdded,
+    user: fetchedUser,
+  } = useAppContext();
 
   const table = useReactTable({
     data: subscriptionData
@@ -56,64 +60,68 @@ export default function SubscriptionTable({ user }) {
     },
   });
 
-  const getSubscriptionData = useCallback(
-    async () => {
-      if (!fetchedUser) {
-        return;
-      }
-      try {
-        const client = generateClient();
+  const getSubscriptionData = useCallback(async () => {
+    //if user is null then return
+    if (!fetchedUser) {
+      return;
+    }
+    try {
+      //get graphql client
+      const client = generateClient();
 
-
-        const subscriptionData = await client.graphql({
-          query: queries.listUserSubscriptions,
-          variables: {
-            filter: {
-              email: {
-                eq: fetchedUser.signInDetails.loginId,
-              },
+      // hit api call
+      const subscriptionData = await client.graphql({
+        query: queries.listUserSubscriptions,
+        variables: {
+          filter: {
+            email: {
+              eq: fetchedUser.signInDetails.loginId,
             },
           },
+        },
+      });
+      // Sort the items based on the `checked` field
+      const sortedItems =
+        subscriptionData.data.listUserSubscriptions.items.sort((a, b) => {
+          return a.checked === b.checked ? 0 : a.checked ? -1 : 1;
         });
-        // Sort the items based on the `checked` field
-        const sortedItems =
-          subscriptionData.data.listUserSubscriptions.items.sort((a, b) => {
-            return a.checked === b.checked ? 0 : a.checked ? -1 : 1;
-          });
 
-        // Set the sorted data
-        setSubscriptionData({
-          ...subscriptionData.data,
-          listUserSubscriptions: {
-            ...subscriptionData.data.listUserSubscriptions,
-            items: sortedItems,
-          },
-        });
-      } catch (error) {
-        console.log("error while fetching user subscriptions", error);
-        toast({
-          title: "Failure",
-          description: "Something went wrong while fetching the subscription",
-          variant: "destructive",
-        });
-      }
-    },
-    [fetchedUser]
-  );
+      // Set the sorted data
+      setSubscriptionData({
+        ...subscriptionData.data,
+        listUserSubscriptions: {
+          ...subscriptionData.data.listUserSubscriptions,
+          items: sortedItems,
+        },
+      });
+    } catch (error) {
+      console.log("error while fetching user subscriptions", error);
+      toast({
+        title: "Failure",
+        description: "Something went wrong while fetching the subscription",
+        variant: "destructive",
+      });
+    }
+  }, [fetchedUser]);
 
+  // callback to be triggered when data is updated in the table. triggered when status is checked
   const onTableUpdate = useCallback(() => {
     getSubscriptionData();
   }, []);
 
+  //set the callback function in the app context
   setOnTableDataUpdate(() => onTableUpdate);
 
+  // callback to be triggered when data is added in the table
   const onTableDataAdded = useCallback(() => {
     getSubscriptionData();
   }, []);
 
+  //set the callback function in the app context
   setOnTableDataAdded(() => onTableDataAdded);
 
   useEffect(() => {
+    //onlu get data if user is not null
     if (fetchedUser) {
       getSubscriptionData();
     }
@@ -210,7 +218,6 @@ export default function SubscriptionTable({ user }) {
           </TableBody>
         </Table>
       </div>
-
     </div>
   );
 }

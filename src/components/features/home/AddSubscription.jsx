@@ -27,7 +27,12 @@ const AddSubscription = () => {
   const { user,onTableDataAdded } = useAppContext();
   const { toast } = useToast();
 
+/**
+ * The function `handleInsertSubscription` handles the insertion of a new subscription into a database,
+ * displaying success or error messages accordingly.
+ */
   const handleInsertSubscription = async () => {
+    //if price or title is empty, return
     if (!title || !price) {
       toast({
         title: "Empty Fields",
@@ -38,9 +43,12 @@ const AddSubscription = () => {
       return
     }
 
+
     try {
       setIsLoading(true);
+      //get graphql client
       const graphqlClient = generateClient();
+      //hit api
       const newSubscription = await graphqlClient.graphql({
         query: mutations.createUserSubscription,
         variables: {
@@ -54,10 +62,13 @@ const AddSubscription = () => {
           },
         },
       });
+      //reset the fields
       setTitle("");
       setDescription("");
       setPrice("");
+      //call the callback to make the subscriptionTable component to fetch the data again
       onTableDataAdded()
+      //show a success message
       toast({
         title:"Success",
         description:"Subscription added successfully",
@@ -68,6 +79,7 @@ const AddSubscription = () => {
     } catch (error) {
       console.log(error);
     } finally {
+      //end the loading at the end
       setIsLoading(false);
     }
   };
@@ -109,6 +121,7 @@ const AddSubscription = () => {
           <Input
             id="price"
             className="w-full"
+            type="number"
             value={price}
             onChange={(e) => {
               setPrice(e.target.value);
