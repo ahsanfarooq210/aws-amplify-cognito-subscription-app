@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -29,6 +29,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+
+import * as queries from "@/graphql/queries";
+import { generateClient } from "aws-amplify/api";
 
 const data = [
   {
@@ -65,32 +69,33 @@ const data = [
 
 export const columns = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "title",
+    header: "Title",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <div className="capitalize">{row.getValue("title")}</div>
     ),
   },
   {
-    accessorKey: "email",
+    accessorKey: "description",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          Description
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <p className="lowercase">{row.getValue("email")}</p>,
+    cell: ({ row }) => (
+      <p className="lowercase">{row.getValue("description")}</p>
+    ),
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
+    accessorKey: "price",
+    header: () => <div className="text-right">Price</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const amount = parseFloat(row.getValue("price"));
 
       // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat("en-US", {
@@ -107,39 +112,21 @@ export const columns = [
     cell: ({ row }) => {
       const payment = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <Button>Mark as Checked</Button>;
     },
   },
 ];
 
 export default function SubscriptionTable() {
-  const [sorting, setSorting] = React.useState([]);
-  const [columnFilters, setColumnFilters] = React.useState([]);
-  const [columnVisibility, setColumnVisibility] = React.useState({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState([]);
+  const [columnFilters, setColumnFilters] = useState([]);
+  const [columnVisibility, setColumnVisibility] = useState({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const { toast } = useToast();
 
   const table = useReactTable({
-    data,
+    data: subscriptionData?subscriptionData?.listUserSubscriptions?.items:[],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -157,14 +144,40 @@ export default function SubscriptionTable() {
     },
   });
 
+  const getSubscriptionData = async (nextToken) => {
+    try {
+      const client = generateClient();
+      const subscriptionData = await client.graphql({
+        query: queries.listUserSubscriptions,
+        variables: {
+          limit: 5,
+          nextToken: nextToken,
+        },
+      });
+      setSubscriptionData(subscriptionData.data);
+      console.log("successfully grabed subsctiption data", subscriptionData);
+    } catch (error) {
+      console.log("error while fetching user subscriptions", error);
+      toast({
+        title: "Failure",
+        description: "Something went wrong while fetching the subscription",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    getSubscriptionData();
+  }, []);
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() || "")}
+          placeholder="Filter titles..."
+          value={table.getColumn("title")?.getFilterValue() || ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("title")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -186,8 +199,7 @@ export default function SubscriptionTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) =>
                       column.toggleVisibility(!!value)
-                    }
-                  >
+                    }>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 );
@@ -220,8 +232,7 @@ export default function SubscriptionTable() {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                  data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -236,8 +247,7 @@ export default function SubscriptionTable() {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                  className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -255,16 +265,14 @@ export default function SubscriptionTable() {
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
+            disabled={!table.getCanPreviousPage()}>
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
+            disabled={!table.getCanNextPage()}>
             Next
           </Button>
         </div>
